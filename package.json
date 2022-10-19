@@ -1,0 +1,38 @@
+{
+  "name": "lachs",
+  "version": "1.0.0",
+  "description": "Workspace for exporting JSX to PDF, SVG, PNG and JPEG",
+  "repository": "https://github.com/lachlansmith/lachs.git",
+  "author": "Lachlan Smith",
+  "license": "MIT",
+  "scripts": {
+    "release:latest": "yarn publish --tag latest && yarn pack",
+    "release:next": "yarn publish --tag next",
+    "release:prep": "yarn clean && yarn lint && yarn build",
+    "lint": "yarn lint:prettier && yarn lint:tslint:src",
+    "lint:tslint:src": "tslint --project tsconfig.json --fix",
+    "lint:prettier": "prettier --write \"./{src,tests,apps}/**/*.{ts,js,json,html,css}\" --loglevel error",
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:esm": "tsc",
+    "build:cjs": "tsc --module commonjs --outDir cjs",
+    "clean": "rimraf cjs es"
+  },
+  "main": "cjs/index.js",
+  "module": "es/index.js",
+  "types": "cjs/index.d.ts",
+  "devDependencies": {
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
+    "prettier": "^2.7.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^3.0.2",
+    "tslint": "^6.1.3",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "lachs-pdf-lib": "^1.0.1"
+  }
+}
