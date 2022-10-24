@@ -56,6 +56,7 @@ export default {
     name: 'lachs',
     format: MODULE_TYPE,
     sourcemap: true,
+    exports: 'named',
   },
   plugins: [
     resolve({ preferBuiltins: false, browser: true }),

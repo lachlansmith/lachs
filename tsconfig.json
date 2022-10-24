@@ -20,8 +20,8 @@
     "downlevelIteration": false,
     "isolatedModules": false,
     "newLine": "LF",
-    /* Strict Type-Checking Options */
-    "strict": true,
+    // /* Strict Type-Checking Options */
+    // "strict": true,
     /* Additional Checks */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
