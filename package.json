@@ -1,6 +1,6 @@
 {
   "name": "lachs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Workspace for exporting JSX to PDF, SVG, PNG and JPEG",
   "repository": "https://github.com/lachlansmith/lachs.git",
   "author": "Lachlan Smith",
@@ -25,7 +25,7 @@
   "main": "cjs/index.js",
   "module": "es/index.js",
   "unpkg": "dist/lachs.min.js",
-  "types": "es/index.d.ts",
+  "types": "cjs/index.d.ts",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^13.0.0",
     "@rollup/plugin-json": "^4.1.0",
