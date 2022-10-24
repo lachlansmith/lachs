@@ -10,7 +10,7 @@ const Rect = (props: {
   const { width, height } = props;
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns='http://www.w3.org/2000/svg'
       viewBox={'0 0 ' + width + ' ' + height}
     >
       <rect width={width} height={height} />

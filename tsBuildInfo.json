@@ -922,13 +922,13 @@
         "affectsGlobalScope": false
       },
       "./src/core/element.tsx": {
-        "version": "b139540eaeda91d38c68b5a8134596c4a2d5100b5e8c6276e1df80c842daf31b",
+        "version": "107952a778cc77882c766f629d1af85346f0cc458bcf8a91bee93a0eb4d7abea",
         "signature": "349060d5ad15294a00c48c7c024b680f10df371148b6c9c8b45af9f4e01bdb03",
         "affectsGlobalScope": false
       },
       "./src/core/artboard.tsx": {
-        "version": "eb991565f00bee6f269fbed85933e59b31c43a7256d15cc309d66b3a9cf16d08",
-        "signature": "ac613e2663b96dc34a090c5c5e71359c7431344e6d169d87e9d071a489199c16",
+        "version": "1cbfd0d7beb54a0fa2ba50d0c3e5d590b093c83310b24abf9f692f9f7712c163",
+        "signature": "9d3bf9171d423de19fd98eaa1b800656635c4ca99b33f8f0ba2c7c5e4b4bc350",
         "affectsGlobalScope": false
       },
       "./src/core/workspace.tsx": {
@@ -952,7 +952,7 @@
         "affectsGlobalScope": false
       },
       "./src/compilers/rect.tsx": {
-        "version": "2e096085faf46350c9030844fe7a6ca64600f7b40619f94f773f222943ddc1c4",
+        "version": "d35b2bd0d9423e89a24124391c42ce7412177048a4dba941e7fc19762ef1b39c",
         "signature": "e140267baa93ee84d0d71b3254835b773f7813d8197f7b61cd13081dfe797f24",
         "affectsGlobalScope": false
       },
@@ -977,8 +977,8 @@
         "affectsGlobalScope": false
       },
       "./src/utils/props.ts": {
-        "version": "8abe1acb8d14e38f1784b9368940e363afcdf46dbf62c95853b263285e1596d4",
-        "signature": "8eb4cba3aea1a35673a34ac843391e90ceaa57eb7769e41186c5e0fdaddff452",
+        "version": "a11630e6b16de6a1704919082ec6ca3a749e72c2fd8f71d2b97ab78c1735f250",
+        "signature": "f45556faa5f8d326f34f69083d7746855a768a5891fa3a445fd5ee7663c723fe",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/estree/index.d.ts": {

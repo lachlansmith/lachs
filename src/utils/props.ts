@@ -1,14 +1,14 @@
-export const setProps = (changeSet: any, props: any) => {
-  Object.keys(changeSet).forEach((key) => {
-    if (!Object.keys(props).includes(key)) {
+export const setProps = (newprops: any, defprops: any) => {
+  Object.keys(newprops).forEach((key) => {
+    if (!Object.keys(defprops).includes(key)) {
       throw new Error(
-        "setProps: New prop '" + key + "' does not exist in props",
+        'setProps: New prop \'' + key + '\' does not exist in props',
       );
     }
   });
 
   return {
-    ...props,
-    ...changeSet,
+    ...defprops,
+    ...newprops,
   };
 };

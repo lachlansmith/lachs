@@ -79,7 +79,7 @@ export default class Element {
       throw new Error(
         'Compiler returned JSX element ' +
           component.type +
-          " that's not an svg",
+          ' that\'s not an svg',
       );
     }
 

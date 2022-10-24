@@ -93,7 +93,7 @@ export default class Artboard {
   move = (element: Element, position: number) => {
     if (element.board !== this.index) {
       throw new Error(
-        "Element from another artboard can't be moved to this artboard",
+        'Element from another artboard can\'t be moved to this artboard',
       );
     }
 
@@ -111,7 +111,7 @@ export default class Artboard {
 
   toJSX = () => (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns='http://www.w3.org/2000/svg'
       viewBox={'0 0 ' + this.size[0] + ' ' + this.size[1]}
     >
       {this.elements.map((element: Element) => {
@@ -411,4 +411,3 @@ export default class Artboard {
     return dataUri;
   };
 }
-

@@ -1,17 +1,19 @@
 {
   "name": "lachs",
-  "version": "1.0.2",
+  "version": "1.0.03",
   "description": "Workspace for exporting JSX to PDF, SVG, PNG and JPEG",
   "repository": "https://github.com/lachlansmith/lachs.git",
   "author": "Lachlan Smith",
   "license": "MIT",
   "scripts": {
-    "release:latest": "yarn publish --tag latest && yarn pack",
+    "release:latest": "yarn publish --tag latest && yarn pack && yarn release:tag",
     "release:next": "yarn publish --tag next",
     "release:prep": "yarn clean && yarn lint && yarn build",
+    "release:tag": "TAG=\"v$(yarn --silent get:version)\" && git tag $TAG && git push origin $TAG",
+    "get:version": "node --eval 'console.log(require(`./package.json`).version)'",
     "lint": "yarn lint:prettier && yarn lint:tslint:src",
     "lint:tslint:src": "tslint --project tsconfig.json --fix",
-    "lint:prettier": "prettier --write \"./{src}/**/*.{ts,tsx,js,jsx,json,html,css}\" --loglevel error",
+    "lint:prettier": "prettier --write src//**/*.{ts,tsx} --loglevel error",
     "build": "yarn build:cjs && yarn build:es && yarn build:esm && yarn build:esm:min && yarn build:umd && yarn build:umd:min",
     "build:cjs": "ttsc --module commonjs --outDir cjs",
     "build:es": "ttsc --module ES2020 --outDir es",
@@ -49,5 +51,15 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tslib": "^2.4.0"
-  }
+  },
+  "files": [
+    "cjs/",
+    "dist/",
+    "es/",
+    "src/",
+    "LICENSE.md",
+    "package.json",
+    "README.md",
+    "yarn.lock"
+  ]
 }
