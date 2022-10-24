@@ -1,3 +1,5 @@
+import { Buffer } from 'buffer';
+
 export const format = (
   mimeType:
     | 'application/json'
@@ -5,7 +7,7 @@ export const format = (
     | 'image/svg+xml'
     | 'image/png'
     | 'image/jpeg',
-  buffer: any,
+  buffer: Buffer,
   type?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri',
 ) => {
   switch (type) {

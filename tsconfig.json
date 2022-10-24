@@ -1,27 +1,44 @@
 {
   "compilerOptions": {
-    "outDir": "es",
-    "rootDir": "./src",
-    "module": "esnext",
+    /* Basic Options */
     "target": "es6",
-    "lib": ["dom", "es2020"],
+    "module": "commonjs",
     "jsx": "react",
+    "lib": ["DOM", "ES2020"],
+    "allowJs": false,
+    "checkJs": false,
     "declaration": true,
-    "moduleResolution": "node",
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./build",
+    "rootDir": "./src",
+    "composite": false,
+    "incremental": true,
+    "tsBuildInfoFile": "./tsBuildInfo.json",
+    "removeComments": false,
+    "importHelpers": true,
+    "downlevelIteration": false,
+    "isolatedModules": false,
+    "newLine": "LF",
+    /* Strict Type-Checking Options */
+    "strict": true,
+    /* Additional Checks */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "esModuleInterop": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "allowSyntheticDefaultImports": true,
+    "noFallthroughCasesInSwitch": true,
+    /* Module Resolution Options */
     "baseUrl": "./src",
     "paths": {
       "src/*": ["./*"]
-    }
+    },
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "preserveSymlinks": true,
+    "moduleResolution": "node",
+
+    /* Plugins */
+    "plugins": [{ "transform": "@zerollup/ts-transform-paths" }]
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "lib"]
+  "include": ["src/**/*"]
 }

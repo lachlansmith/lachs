@@ -7,21 +7,9 @@ import Element from 'src/core/element';
 import { format } from 'src/utils/format';
 import { drawContext } from 'src/utils/canvas';
 
-export const methods: {
-  name: string;
-  compiler: (props: any) => JSX.Element;
-  configurer?: (props: any, config: any) => any;
-}[] = [];
+import { methods } from 'src/core';
 
-export const addMethod = (
-  name: string,
-  compiler: (props: any) => JSX.Element,
-  configurer?: (props: any, config: any) => any,
-) => {
-  methods.push({ name, compiler, configurer });
-};
-
-class Artboard {
+export default class Artboard {
   size: [number, number];
   index: number;
   meta?: any;
@@ -424,4 +412,3 @@ class Artboard {
   };
 }
 
-export default Artboard;

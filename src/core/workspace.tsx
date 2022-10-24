@@ -1,11 +1,12 @@
 import { Buffer } from 'buffer';
 import { PDFDocument, PDFPage } from 'lachs-pdf-lib';
 
-import Artboard, { methods } from 'src/core/artboard';
+import Artboard from 'src/core/artboard';
 import Element from 'src/core/element';
+import { methods } from 'src/core';
 import { format } from 'src/utils/format';
 
-class Workspace {
+export default class Workspace {
   artboards: Artboard[];
   methods: {
     name: string;
@@ -327,5 +328,3 @@ class Workspace {
       : this.artboards[0].toJPEG({ responseType });
   };
 }
-
-export default Workspace;

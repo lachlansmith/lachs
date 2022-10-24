@@ -6,7 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { format } from 'src/utils/format';
 import { drawContext } from 'src/utils/canvas';
 
-class Element {
+export default class Element {
   type: string;
   name: string;
   position?: number;
@@ -372,5 +372,3 @@ class Element {
     return dataUri;
   };
 }
-
-export default Element;

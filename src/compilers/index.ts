@@ -1,4 +1,6 @@
-export * from 'src/compilers/circle';
-export * from 'src/compilers/ellipse';
-export * from 'src/compilers/rect';
-export * from 'src/compilers/line';
+import circle from 'src/compilers/circle';
+import ellipse from 'src/compilers/ellipse';
+import rect from 'src/compilers/rect';
+import line from 'src/compilers/line';
+
+export const compilers = { circle, ellipse, rect, line };
