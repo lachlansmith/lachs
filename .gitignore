@@ -1,0 +1,12 @@
+node_modules/
+cjs/
+es/
+dist/
+
+yarn-error.log
+isolate*.log
+.DS_Store
+out.pdf
+*.tgz
+
+.vscode/settings.json
