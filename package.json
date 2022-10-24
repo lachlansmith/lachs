@@ -1,6 +1,6 @@
 {
   "name": "lachs",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Workspace for exporting JSX to PDF, SVG, PNG and JPEG",
   "repository": "https://github.com/lachlansmith/lachs.git",
   "author": "Lachlan Smith",
@@ -23,7 +23,6 @@
     "build:umd:min": "rollup --config rollup.config.js --file dist/lachs.min.js --environment MINIFY,MODULE_TYPE:umd",
     "clean": "rimraf cjs es build"
   },
-  "type": "module",
   "main": "cjs/index.js",
   "module": "es/index.js",
   "unpkg": "dist/lachs.min.js",
