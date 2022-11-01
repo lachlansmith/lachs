@@ -79,7 +79,7 @@ export default class Element {
       throw new Error(
         'Compiler returned JSX element ' +
           component.type +
-          ' that\'s not an svg',
+          " that's not an svg",
       );
     }
 
@@ -229,7 +229,7 @@ export default class Element {
     type: string,
     options: {
       configs?: any;
-      responseType?: 'string' | 'base64' | 'arrayBuffer' | 'dataUri';
+      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
       background?: string;
     } = {},
   ) => {
@@ -251,6 +251,10 @@ export default class Element {
       case 'image/png':
         return await this.toPNG(options);
 
+      case 'webp':
+      case 'image/webp':
+        return await this.toPNG(options);
+
       case 'jpg':
       case 'jpeg':
       case 'image/jpeg':
@@ -263,7 +267,7 @@ export default class Element {
   toJSON = (
     options: {
       configs?: any;
-      responseType?: 'string' | 'base64' | 'arrayBuffer' | 'dataUri';
+      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
     } = {},
   ) => {
     const { responseType } = options;
@@ -287,7 +291,7 @@ export default class Element {
   toPDF = async (
     options: {
       configs?: any;
-      responseType?: 'string' | 'base64' | 'arrayBuffer' | 'dataUri';
+      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
       background?: string;
     } = {},
   ) => {
@@ -312,7 +316,7 @@ export default class Element {
   toSVG = async (
     options: {
       configs?: any;
-      responseType?: 'string' | 'base64' | 'arrayBuffer' | 'dataUri';
+      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
       background?: string;
     } = {},
   ) => {
@@ -334,7 +338,7 @@ export default class Element {
   toPNG = async (
     options: {
       configs?: any;
-      responseType?: 'string' | 'base64' | 'arrayBuffer' | 'dataUri';
+      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
     } = {},
   ) => {
     const { responseType } = options;
@@ -354,7 +358,7 @@ export default class Element {
   toJPEG = async (
     options: {
       configs?: any;
-      responseType?: 'string' | 'base64' | 'arrayBuffer' | 'dataUri';
+      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
       background?: string;
     } = {},
   ) => {
@@ -367,6 +371,26 @@ export default class Element {
       const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
 
       return format('image/jpeg', output, responseType);
+    }
+
+    return dataUri;
+  };
+
+  toWEBP = async (
+    options: {
+      configs?: any;
+      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
+    } = {},
+  ) => {
+    const { responseType } = options;
+
+    const canvas = await this.toCanvas();
+    const dataUri = canvas.toDataURL('image/webp');
+
+    if (responseType && responseType !== 'dataUri') {
+      const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
+
+      return format('image/webp', output, responseType);
     }
 
     return dataUri;

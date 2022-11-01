@@ -6,11 +6,8 @@
   "author": "Lachlan Smith",
   "license": "MIT",
   "scripts": {
-    "release:latest": "yarn publish --tag latest && yarn pack && yarn release:tag",
-    "release:next": "yarn publish --tag next",
+    "release": "yarn publish --tag latest && yarn pack",
     "release:prep": "yarn clean && yarn lint && yarn build",
-    "release:tag": "TAG=\"v$(yarn --silent get:version)\" && git tag $TAG && git push origin $TAG",
-    "get:version": "node --eval 'console.log(require(`./package.json`).version)'",
     "lint": "yarn lint:prettier && yarn lint:tslint:src",
     "lint:tslint:src": "tslint --project tsconfig.json --fix",
     "lint:prettier": "prettier --write src//**/*.{ts,tsx} --loglevel error",

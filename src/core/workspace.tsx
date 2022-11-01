@@ -4,7 +4,6 @@ import { PDFDocument, PDFPage } from 'lachs-pdf-lib';
 import Artboard from 'src/core/artboard';
 import Element from 'src/core/element';
 import { methods } from 'src/core';
-import { format } from 'src/utils/format';
 
 export default class Workspace {
   artboards: Artboard[];
@@ -87,6 +86,10 @@ export default class Workspace {
       case 'image/png':
         return await this.toPNG(options);
 
+      case 'webp':
+      case 'image/webp':
+        return await this.toWEBP(options);
+
       case 'jpg':
       case 'jpeg':
       case 'image/jpeg':
@@ -139,15 +142,25 @@ export default class Workspace {
 
           page.draw(graphic, { x: 0, y: h });
 
-          const arrBuf = await pdfDoc.save();
-
-          if (responseType && responseType !== 'arrayBuffer') {
-            const output = Buffer.from(arrBuf);
-
-            return format('application/pdf', output, responseType);
+          switch (responseType) {
+            case 'base64':
+              return await pdfDoc.saveAsBase64();
+            case 'dataUri':
+              return await pdfDoc.saveAsBase64({ dataUri: true });
+            case 'binary':
+              return Buffer.from(
+                await pdfDoc.saveAsBase64(),
+                'base64',
+              ).toString('binary');
+            case 'binary':
+              return Buffer.from(
+                await pdfDoc.saveAsBase64(),
+                'base64',
+              ).toString();
+            case 'arrayBuffer':
+            default:
+              return await pdfDoc.save();
           }
-
-          return arrBuf;
         }),
       )) as (string | ArrayBuffer)[];
     }
@@ -207,17 +220,25 @@ export default class Workspace {
       );
     }
 
-    const arrayBuffer = await doc.save();
-
-    if (responseType && responseType !== 'arrayBuffer') {
-      const output = Buffer.from(arrayBuffer);
-
-      return array
-        ? [format('application/pdf', output, responseType)]
-        : format('application/pdf', output, responseType);
+    switch (responseType) {
+      case 'base64':
+        return array ? [await doc.saveAsBase64()] : await doc.saveAsBase64();
+      case 'dataUri':
+        return array
+          ? [await doc.saveAsBase64({ dataUri: true })]
+          : await doc.saveAsBase64({ dataUri: true });
+      case 'binary':
+        return array
+          ? [Buffer.from(await doc.saveAsBase64(), 'base64').toString('binary')]
+          : Buffer.from(await doc.saveAsBase64(), 'base64').toString('binary');
+      case 'binary':
+        return array
+          ? [Buffer.from(await doc.saveAsBase64(), 'base64').toString()]
+          : Buffer.from(await doc.saveAsBase64(), 'base64').toString();
+      case 'arrayBuffer':
+      default:
+        return array ? [await doc.save()] : await doc.save();
     }
-
-    return array ? [arrayBuffer] : arrayBuffer;
   };
 
   toSVG = async (
@@ -326,5 +347,40 @@ export default class Workspace {
           ),
         )
       : this.artboards[0].toJPEG({ responseType });
+  };
+
+  toWEBP = async (
+    options: {
+      configs?: any;
+      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
+      array?: boolean;
+    } = {},
+  ) => {
+    if (this.artboards.length === 0) {
+      throw new Error('Workspace is emtpty, no art boards found');
+    }
+
+    const { configs, responseType, array } = options;
+    if (configs) {
+      const webps = [];
+      for (const [index, config] of configs.entries()) {
+        const idx = index % this.artboards.length;
+        await this.artboards[idx].configure(config);
+        webps.push(
+          (await this.artboards[idx].toWEBP({
+            responseType,
+          })) as string | ArrayBuffer,
+        );
+      }
+      return webps;
+    }
+    return this.artboards.length > 1 || array
+      ? await Promise.all(
+          this.artboards.map(
+            async (artboard) =>
+              (await artboard.toWEBP({ responseType })) as string | ArrayBuffer,
+          ),
+        )
+      : this.artboards[0].toWEBP({ responseType });
   };
 }

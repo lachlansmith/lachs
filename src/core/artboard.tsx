@@ -93,7 +93,7 @@ export default class Artboard {
   move = (element: Element, position: number) => {
     if (element.board !== this.index) {
       throw new Error(
-        'Element from another artboard can\'t be moved to this artboard',
+        "Element from another artboard can't be moved to this artboard",
       );
     }
 
@@ -111,7 +111,7 @@ export default class Artboard {
 
   toJSX = () => (
     <svg
-      xmlns='http://www.w3.org/2000/svg'
+      xmlns="http://www.w3.org/2000/svg"
       viewBox={'0 0 ' + this.size[0] + ' ' + this.size[1]}
     >
       {this.elements.map((element: Element) => {
@@ -175,6 +175,10 @@ export default class Artboard {
       case 'image/png':
         return await this.toPNG(options);
 
+      case 'webp':
+      case 'image/webp':
+        return await this.toWEBP(options);
+
       case 'jpeg':
       case 'image/jpeg':
         return await this.toJPEG(options);
@@ -229,15 +233,25 @@ export default class Artboard {
 
           page.draw(graphic, { x: 0, y: h });
 
-          const arrBuf = await pdfDoc.save();
-
-          if (responseType && responseType !== 'arrayBuffer') {
-            const output = Buffer.from(arrBuf);
-
-            return format('application/pdf', output, responseType);
+          switch (responseType) {
+            case 'base64':
+              return await pdfDoc.saveAsBase64();
+            case 'dataUri':
+              return await pdfDoc.saveAsBase64({ dataUri: true });
+            case 'binary':
+              return Buffer.from(
+                await pdfDoc.saveAsBase64(),
+                'base64',
+              ).toString('binary');
+            case 'binary':
+              return Buffer.from(
+                await pdfDoc.saveAsBase64(),
+                'base64',
+              ).toString();
+            case 'arrayBuffer':
+            default:
+              return await pdfDoc.save();
           }
-
-          return arrBuf;
         }),
       )) as string[] | ArrayBuffer[];
     }
@@ -280,15 +294,21 @@ export default class Artboard {
       drawables.forEach(({ graphic }) => page.draw(graphic, { x: 0, y: h }));
     }
 
-    const arrayBuffer = await doc.save();
-
-    if (responseType && responseType !== 'arrayBuffer') {
-      const output = Buffer.from(arrayBuffer);
-
-      return format('application/pdf', output, responseType);
+    switch (responseType) {
+      case 'base64':
+        return await doc.saveAsBase64();
+      case 'dataUri':
+        return await doc.saveAsBase64({ dataUri: true });
+      case 'binary':
+        return Buffer.from(await doc.saveAsBase64(), 'base64').toString(
+          'binary',
+        );
+      case 'binary':
+        return Buffer.from(await doc.saveAsBase64(), 'base64').toString();
+      case 'arrayBuffer':
+      default:
+        return await doc.save();
     }
-
-    return arrayBuffer;
   };
 
   toSVG = async (
@@ -406,6 +426,47 @@ export default class Artboard {
       const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
 
       return format('image/jpeg', output, responseType);
+    }
+
+    return dataUri;
+  };
+
+  toWEBP = async (
+    options: {
+      configs?: any;
+      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
+    } = {},
+  ) => {
+    const { configs, responseType } = options;
+
+    let dataUri = '';
+
+    if (configs) {
+      return (await Promise.all(
+        configs.map(async (config: any) => {
+          await this.configure(config);
+
+          const cnv = await this.toCanvas();
+          dataUri = cnv.toDataURL('image/webp');
+
+          if (responseType && responseType !== 'dataUri') {
+            const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
+
+            return format('image/png', output, responseType);
+          }
+
+          return dataUri;
+        }),
+      )) as string[] | ArrayBuffer[];
+    }
+
+    const canvas = await this.toCanvas();
+    dataUri = canvas.toDataURL('image/webp');
+
+    if (responseType && responseType !== 'dataUri') {
+      const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
+
+      return format('image/webp', output, responseType);
     }
 
     return dataUri;

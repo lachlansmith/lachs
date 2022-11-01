@@ -4,6 +4,7 @@ export const format = (
   mimeType:
     | 'application/json'
     | 'application/pdf'
+    | 'image/webp'
     | 'image/svg+xml'
     | 'image/png'
     | 'image/jpeg',
