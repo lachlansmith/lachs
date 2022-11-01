@@ -243,7 +243,7 @@ export default class Artboard {
                 await pdfDoc.saveAsBase64(),
                 'base64',
               ).toString('binary');
-            case 'binary':
+            case 'string':
               return Buffer.from(
                 await pdfDoc.saveAsBase64(),
                 'base64',
@@ -303,7 +303,7 @@ export default class Artboard {
         return Buffer.from(await doc.saveAsBase64(), 'base64').toString(
           'binary',
         );
-      case 'binary':
+      case 'string':
         return Buffer.from(await doc.saveAsBase64(), 'base64').toString();
       case 'arrayBuffer':
       default:

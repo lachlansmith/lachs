@@ -303,14 +303,24 @@ export default class Element {
     const page = doc.addPage(this.getSize());
     const h = page.getHeight();
 
-    const jsx = this.toJSX();
-    const graphic = await doc.parseJsx(jsx);
+    const graphic = await doc.parseJsx(this.toJSX());
     page.draw(graphic, { x: 0, y: h });
 
-    const arrayBuffer = await doc.save();
-    const output = Buffer.from(arrayBuffer);
-
-    return format('application/pdf', output, responseType);
+    switch (responseType) {
+      case 'base64':
+        return await doc.saveAsBase64();
+      case 'dataUri':
+        return await doc.saveAsBase64({ dataUri: true });
+      case 'binary':
+        return Buffer.from(await doc.saveAsBase64(), 'base64').toString(
+          'binary',
+        );
+      case 'string':
+        return Buffer.from(await doc.saveAsBase64(), 'base64').toString();
+      case 'arrayBuffer':
+      default:
+        return await doc.save();
+    }
   };
 
   toSVG = async (

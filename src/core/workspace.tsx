@@ -152,7 +152,7 @@ export default class Workspace {
                 await pdfDoc.saveAsBase64(),
                 'base64',
               ).toString('binary');
-            case 'binary':
+            case 'string':
               return Buffer.from(
                 await pdfDoc.saveAsBase64(),
                 'base64',
@@ -231,7 +231,7 @@ export default class Workspace {
         return array
           ? [Buffer.from(await doc.saveAsBase64(), 'base64').toString('binary')]
           : Buffer.from(await doc.saveAsBase64(), 'base64').toString('binary');
-      case 'binary':
+      case 'string':
         return array
           ? [Buffer.from(await doc.saveAsBase64(), 'base64').toString()]
           : Buffer.from(await doc.saveAsBase64(), 'base64').toString();
