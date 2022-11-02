@@ -330,7 +330,27 @@ export default class Element {
       background?: string;
     } = {},
   ) => {
-    const { responseType } = options;
+    const { responseType, configs } = options;
+
+    if (configs) {
+      return (await Promise.all(
+        configs.map(async (config: any) => {
+          await this.configure(config);
+
+          const svgString =
+            '<?xml version="1.0" encoding="UTF-8"?>' +
+            renderToString(this.toJSX());
+
+          if (responseType && responseType !== 'string') {
+            const output = Buffer.from(svgString);
+
+            return format('image/svg+xml', output, responseType);
+          }
+
+          return svgString;
+        }),
+      )) as string[] | ArrayBuffer[];
+    }
 
     const svg =
       '<?xml version="1.0" encoding="UTF-8"?>' +
@@ -351,7 +371,26 @@ export default class Element {
       responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
     } = {},
   ) => {
-    const { responseType } = options;
+    const { responseType, configs } = options;
+
+    if (configs) {
+      return (await Promise.all(
+        configs.map(async (config: any) => {
+          await this.configure(config);
+
+          const cnv = await this.toCanvas();
+          const dataUri = cnv.toDataURL('image/png');
+
+          if (responseType && responseType !== 'dataUri') {
+            const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
+
+            return format('image/png', output, responseType);
+          }
+
+          return dataUri;
+        }),
+      )) as string[] | ArrayBuffer[];
+    }
 
     const canvas = await this.toCanvas();
     const dataUri = canvas.toDataURL('image/png');
@@ -372,7 +411,26 @@ export default class Element {
       background?: string;
     } = {},
   ) => {
-    const { responseType } = options;
+    const { responseType, configs } = options;
+
+    if (configs) {
+      return (await Promise.all(
+        configs.map(async (config: any) => {
+          await this.configure(config);
+
+          const cnv = await this.toCanvas({ background: '#FFFFFF' });
+          const uri = cnv.toDataURL('image/jpeg');
+
+          if (responseType && responseType !== 'dataUri') {
+            const output = Buffer.from(uri.split(';base64,')[1], 'base64');
+
+            return format('image/jpeg', output, responseType);
+          }
+
+          return dataUri;
+        }),
+      )) as string[] | ArrayBuffer[];
+    }
 
     const canvas = await this.toCanvas({ background: '#FFFFFF' });
     const dataUri = canvas.toDataURL('image/jpeg');
@@ -392,7 +450,26 @@ export default class Element {
       responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
     } = {},
   ) => {
-    const { responseType } = options;
+    const { responseType, configs } = options;
+
+    if (configs) {
+      return (await Promise.all(
+        configs.map(async (config: any) => {
+          await this.configure(config);
+
+          const cnv = await this.toCanvas();
+          const dataUri = cnv.toDataURL('image/webp');
+
+          if (responseType && responseType !== 'dataUri') {
+            const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
+
+            return format('image/png', output, responseType);
+          }
+
+          return dataUri;
+        }),
+      )) as string[] | ArrayBuffer[];
+    }
 
     const canvas = await this.toCanvas();
     const dataUri = canvas.toDataURL('image/webp');

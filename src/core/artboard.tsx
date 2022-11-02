@@ -436,6 +436,7 @@ export default class Artboard {
     } = {},
   ) => {
     const { configs, responseType } = options;
+
     if (configs) {
       return (await Promise.all(
         configs.map(async (config: any) => {
