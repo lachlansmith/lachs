@@ -1,4 +1,4 @@
-export const PageSizes = {
+export const BoardSizes = {
   '4A0': [4767.87, 6740.79] as [number, number],
   '2A0': [3370.39, 4767.87] as [number, number],
   A0: [2383.94, 3370.39] as [number, number],
