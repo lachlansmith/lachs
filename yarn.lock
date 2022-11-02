@@ -417,10 +417,10 @@ js-yaml@^3.13.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-lachs-pdf-lib@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/lachs-pdf-lib/-/lachs-pdf-lib-1.0.2.tgz#320f2b3b490e1f5c35c3c13c94c8be3211014c46"
-  integrity sha512-/+MejgMDElhLaP1jyYI7yv+jk7pdhPTuHKwX0R6baw7wW46+P7HllrXDUgWQxBAhUuLZFZKK1OvYVJhMZhPWJg==
+lachs-pdf-lib@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/lachs-pdf-lib/-/lachs-pdf-lib-1.0.3.tgz#acd778008c9e0c69c3368f0877173fd2e95b4622"
+  integrity sha512-ix/+cbsVbTL1krDXWehdpkQrp28OMuHgIaynHgZuNlnw13G+NjQ/r03KmaI9JzlwE853x/cnumM0l2f6wymWYA==
   dependencies:
     "@pdf-lib/standard-fonts" "^1.0.0"
     "@pdf-lib/upng" "^1.0.1"

@@ -130,14 +130,11 @@ const compiler = (props: {
   );
 };
 
-const element = new Element(
-  {
-    url: 'https://github.com/lachlansmith/lachs',
-    errorCorrectionLevel: 'H',
-    stroke: 'black',
-  },
-  compiler,
-);
+const element = new Element(compiler, {
+  url: 'https://github.com/lachlansmith/lachs',
+  errorCorrectionLevel: 'H',
+  stroke: 'black',
+});
 
 const PDF = await element.toPDF(); // arrayBuffer
 const SVG = await element.toSVG(); // string
@@ -249,7 +246,7 @@ const WEBPs = await workspace.toWEBP({ responseType: 'base64' }); // base64[]
 
 ### Globals
 
-Given lachs list of compilers is empty by default this might be annoying if you use certain methods often. Here's how you might add all basic svg shapes to lachs.
+Given lachs list of available methods is empty by default this might be annoying if you use certain methods often. Here's how you might add all basic svg shapes to lachs.
 
 ```js
 import lachs, { BoardSizes } from 'lachs';
@@ -282,21 +279,44 @@ const PDF = await workspace.toPDF()
 
 #### Configs
 
-Largely the reason this package was created was to enable easy propagation of drawings based on high level JSON configs. The _configs_ option is available on all **Element**, **Artboard** and **Workspace** `.to*` methods. For an element to _configure_ based on configs it must have a configurer.
+Largely the reason this package was created was to enable easy propagation of drawings based on high level JSON configs. The _configs_ option is available on all **Element**, **Artboard** and **Workspace** `.to*` methods. For an element to _configure_ based on configs it must have a _configurer_.
+
+You can directly set the elements configurer on a per element basis.
 
 ```js
-import lachs, { setProps } from 'lachs';
-import { text } from './myCompilers';
+import lachs, { useConfigurer } from 'lachs';
+import { qrcode as compiler } from './myCompilers';
 
-const workspace = new Workspace();
+const element = new Element(compiler, {
+  url: 'https://github.com/lachlansmith/lachs#',
+});
 
-workspace.addMethod('text', text);
+element.configurer = useConfigurer((props: any, config: any) => ({
+  ...props,
+  url: props.url + config,
+}));
 
-const artboard = workspace.addArtboard([300, 300]);
+let configs = ['table-of-contents', 'features', 'contributing', 'license'];
+const PDF = await workspace.to('application/pdf', { configs: configs }); // arrayBuffer
+```
 
-const variableText = artboard.text({ text: 'Replace # with number' });
-variableText.configurer = (props: any, config: any): any =>
-  setProps({ text: props.text.replace('#', config.number) }, props);
+If your element always needs the same configurer, the configurer may be added as the third argument to any addMethod. The method will now return an element with a configurer.
+
+```js
+import lachs, { useConfigurer } from 'lachs';
+import { text as compiler } from './myCompilers';
+
+const artboard = new Artboard([500, 500]);
+
+const configurer = useConfigurer((props: any, config: any): any => ({
+  ...props,
+  text: props.text.replace('#', config.number),
+}));
+
+artboard.addMethod('text', compiler, configurer);
+
+artboard.text({ text: 'Replace # with number' });
+artboard.text({ text: 'And this # with number' }).transform({ y: 50 });
 
 let configs = [];
 for (let n = 1; n < 20; n++) {
@@ -304,13 +324,57 @@ for (let n = 1; n < 20; n++) {
   configs.push(config);
 }
 
-const PDF = await workspace.to('application/pdf', { configs: configs }); // arrayBuffer
+const PNGs = await artboard.to('image/png', { configs: configs }); // dataUri[]
 ```
 
 #### Modify
 
-```js
+The majority of the work that realised this package happen in one of lachs dependencies, **lachs-pdf-lib**. PDFLib is an awesome pure javascript package that allows modifying and creating PDF files. **lachs-pdf-lib** is a fork of this library that enables drawing from JSX elements. If you are interested in drawing a SVG from string to a PDF visit [lachs-pdf-lib](https://www.npmjs.com/package/lachs-pdf-lib#draw-svg).
 
+If you'd like to initalise a **Workspace** from a PDF file this is done with the `.from` method. If you'd like to intialise an **Artboard** from a PDF file this is also done with the `.from` method. Use the optional argument index with **Artboard** to select which page the Artboard should be initilised from.
+
+```js
+import lachs, { Workspace, useConfigurer } from 'lachs';
+import { qrcode as compiler } from './myCompilers';
+
+const configurer = useConfigurer((props: any, config: any): any => {
+  const colors = ['black', 'red', 'blue'];
+  return {
+    ...props,
+    stroke: colors[config.number % 3],
+  };
+});
+
+lachs.addMethod('qrcode', compiler, configuerer);
+
+// Fetch the PDF
+const pdf = await axios.get('https://urlOfPDFDocument/doc.pdf', {
+  responseType: 'arrayBuffer',
+});
+
+// Initialise Workspace from PDF
+const workspace = Workspace.from(pdf);
+
+console.log(workspace.artboards.length); // 3
+
+const [width, height] = workspace.artboard[0].size;
+
+const element = workspace.artboard[0]
+  .qrcode({
+    url: 'https://github.com/lachlansmith/lachs',
+  })
+  .transform({ x: width / 2, y: height / 2, anchor: 'center middle' });
+
+workspace.artboard[1].add(element).transform({ rotate: 45 });
+workspace.artboard[2].add(element).transform({ rotate: 90 });
+
+let configs = [];
+for (let n = 1; n < 18; n++) {
+  const config = { number: n.toString() };
+  configs.push(config);
+}
+
+const pdf = await workspace.to('application/pdf', { configs: configs });
 ```
 
 ### Download
@@ -333,13 +397,13 @@ const ext: Extension = {
 };
 
 const download = async (
-workspace: Workspace,
-mimeType:
-    | "application/pdf"
-    | "image/svg+xml"
-    | "image/png"
-    | "image/jpeg"
-    | "image/webp"
+    workspace: Workspace,
+    mimeType:
+        | "application/pdf"
+        | "image/svg+xml"
+        | "image/png"
+        | "image/jpeg"
+        | "image/webp"
 ) => {
     const output = (await workspace.to(mimeType, {
         responseType: "dataUri",
@@ -348,10 +412,10 @@ mimeType:
     if (output instanceof Array) {
         const zip = new JSZip();
         await Promise.all(
-            output.map(async (base64, index) => {
+            output.map(async (dataUri, index) => {
                 zip.file(
                     "artboard" + (index + 1) + "." + ext[mimeType],
-                    base64.split(";base64,")[1],
+                    dataUri.split(";base64,")[1],
                     {
                         base64: true,
                     }

@@ -10,21 +10,23 @@ export default class Workspace {
   methods: {
     name: string;
     compiler: (props: any) => any;
+    configurer?: (props: any, config: any) => any;
   }[];
+  private document?: PDFDocument;
 
   constructor() {
     this.artboards = [];
     this.methods = methods;
   }
 
-  addArtBoard = (size: [number, number]) => {
+  addArtboard = (size: [number, number]): Artboard => {
     const artboard = new Artboard(size, {
       index: this.artboards.length,
     }) as any;
 
-    // this.methods.forEach(({ name, compiler }) => {
-    //   artboard.addMethod(name, compiler);
-    // });
+    this.methods.forEach(({ name, compiler, configurer }) => {
+      artboard.addMethod(name, compiler, configurer);
+    });
 
     this.artboards.push(artboard);
 
@@ -40,10 +42,21 @@ export default class Workspace {
       artboard.addMethod(name, compiler, configurer);
     }
 
-    this.methods.push({ name, compiler });
+    this.methods.push({ name, compiler, configurer });
   };
 
   toJSX = () => this.artboards.map((artboard) => artboard.toJSX());
+
+  from = async (pdf: ArrayBuffer) => {
+    const workspace = new Workspace();
+
+    workspace.document = await PDFDocument.load(pdf);
+    for (const page of workspace.document.getPages()) {
+      workspace.addArtboard(page);
+    }
+
+    return workspace;
+  };
 
   to = async (
     type: string,
@@ -119,11 +132,15 @@ export default class Workspace {
 
           const idx = index % this.artboards.length;
 
+          const canvas = this.document
+            ? await pdfDoc.copyPages(this.document, [idx])
+            : this.artboards[idx].size;
+
           this.artboards[idx].configure(config);
 
-          const graphic = await doc.parseJsx(this.artboards[idx].toJSX());
+          const graphic = await pdfDoc.parseJsx(this.artboards[idx].toJSX());
 
-          const page = pdfDoc.addPage(this.artboards[idx].size);
+          const page = pdfDoc.addPage(canvas);
           const h = page.getHeight();
 
           page.draw(graphic, { x: 0, y: h });
@@ -152,6 +169,7 @@ export default class Workspace {
     }
 
     const doc = await PDFDocument.create();
+    const canvas = await doc.copyPages(this.document);
 
     const drawables = await Promise.all(
       this.artboards.map(
@@ -166,10 +184,16 @@ export default class Workspace {
     );
 
     if (configs) {
-      const pages = configs.map((config: any, index: number) => ({
-        page: doc.addPage(this.artboards[index % this.artboards.length].size),
-        config,
-      }));
+      const pages = configs.map((config: any, index: number) => {
+        const page = this.document
+          ? canvas[index % this.artboards.length]
+          : this.artboards[index % this.artboards.length].size;
+
+        return {
+          page: doc.addPage(page),
+          config,
+        };
+      });
 
       await Promise.all(
         pages.map(
@@ -196,7 +220,11 @@ export default class Workspace {
     } else {
       await Promise.all(
         this.artboards.map(async (artboard, index) => {
-          const page = doc.addPage(artboard.size);
+          const page = doc.addPage(
+            this.document
+              ? canvas[index % this.artboards.length]
+              : artboard.size,
+          );
           const h = page.getHeight();
 
           drawables[index].forEach(({ graphic }) =>
@@ -234,6 +262,12 @@ export default class Workspace {
       array?: boolean;
     } = {},
   ) => {
+    if (this.document) {
+      throw new Error(
+        'Workspace created by PDF document can not exported to SVG',
+      );
+    }
+
     if (this.artboards.length === 0) {
       throw new Error('Workspace is emtpty, no art boards found');
     }
@@ -272,8 +306,14 @@ export default class Workspace {
       array?: boolean;
     } = {},
   ) => {
+    if (this.document) {
+      throw new Error(
+        'Workspace created by PDF document can not exported to PNG',
+      );
+    }
+
     if (this.artboards.length === 0) {
-      throw new Error('Workspace is emtpty, no art boards found');
+      throw new Error('Workspace is emtpty, no artboards found');
     }
 
     const { configs, responseType, array } = options;
@@ -307,8 +347,14 @@ export default class Workspace {
       array?: boolean;
     } = {},
   ) => {
+    if (this.document) {
+      throw new Error(
+        'Workspace created by PDF document can not exported to JPEG',
+      );
+    }
+
     if (this.artboards.length === 0) {
-      throw new Error('Workspace is emtpty, no art boards found');
+      throw new Error('Workspace is emtpty, no artboards found');
     }
 
     const { configs, responseType, array } = options;
@@ -342,6 +388,12 @@ export default class Workspace {
       array?: boolean;
     } = {},
   ) => {
+    if (this.document) {
+      throw new Error(
+        'Workspace created by PDF document can not exported to WEBP',
+      );
+    }
+
     if (this.artboards.length === 0) {
       throw new Error('Workspace is emtpty, no art boards found');
     }

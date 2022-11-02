@@ -2,7 +2,7 @@ export const setProps = (newprops: any, defprops: any) => {
   Object.keys(newprops).forEach((key) => {
     if (!Object.keys(defprops).includes(key)) {
       throw new Error(
-        'setProps: New prop \'' + key + '\' does not exist in props',
+        "useConfigurer: New prop '" + key + "' does not exist in props",
       );
     }
   });
@@ -12,3 +12,7 @@ export const setProps = (newprops: any, defprops: any) => {
     ...newprops,
   };
 };
+
+export const useConfigurer = (
+  configuerer: (props: any, config: any) => any,
+): ((props: any, config: any) => any) => configuerer;

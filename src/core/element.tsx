@@ -45,8 +45,8 @@ export default class Element {
     | 'bottom right';
 
   constructor(
-    props: any = {},
     compiler: (props: any) => JSX.Element,
+    props: any = {},
     options: { name: string; configurer?: (props: any, config: any) => any },
   ) {
     this.type = 'shape';

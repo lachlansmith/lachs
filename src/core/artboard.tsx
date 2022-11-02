@@ -12,17 +12,18 @@ import { methods } from 'src/core';
 export default class Artboard {
   size: [number, number];
   index: number;
-  meta?: any;
   methods: {
     name: string;
     compiler: (props: any) => JSX.Element;
     configurer?: (props: any, config: any) => any;
   }[];
   elements: Element[];
+  document?: PDFDocument;
 
   constructor(size: [number, number], options: { index?: number } = {}) {
     const { index } = options;
     this.index = index ? index : 0;
+
     this.size = size;
 
     this.methods = [];
@@ -47,12 +48,17 @@ export default class Artboard {
     return this;
   };
 
-  add = (
+  add = (element: Element) => {
+    this.elements.push(element);
+    return element;
+  };
+
+  addElement = (
     props: any = {},
     compiler: (props: any) => JSX.Element,
     options: { name: string; configurer?: (props: any, config: any) => any },
   ): Element => {
-    const element = new Element(props, compiler, options);
+    const element = new Element(compiler, props, options);
 
     this.elements.push(element);
 
@@ -65,7 +71,7 @@ export default class Artboard {
     configurer?: (props: any, config: any) => any,
   ) => {
     (this as any)[name] = (props: any = {}) =>
-      this.add(props, compiler, { name, configurer });
+      this.addElement(props, compiler, { name, configurer });
 
     this.methods.push({ name, compiler, configurer });
   };
@@ -108,6 +114,17 @@ export default class Artboard {
     await drawContext(ctx, this);
 
     return canvas;
+  };
+
+  from = async (pdf: ArrayBuffer, index?: number): Promise<Artboard> => {
+    const document = await PDFDocument.load(pdf);
+    const artboard = new Artboard(
+      document.getPage(index ? index : 0).getSize(),
+    );
+
+    artboard.document = document;
+
+    return artboard;
   };
 
   to = async (
@@ -261,11 +278,9 @@ export default class Artboard {
       case 'dataUri':
         return await doc.saveAsBase64({ dataUri: true });
       case 'binary':
-        return Buffer.from(await doc.saveAsBase64(), 'base64').toString(
-          'binary',
-        );
+        return Buffer.from(await doc.save()).toString('binary');
       case 'string':
-        return Buffer.from(await doc.saveAsBase64(), 'base64').toString();
+        return Buffer.from(await doc.save()).toString();
       case 'arrayBuffer':
       default:
         return await doc.save();
