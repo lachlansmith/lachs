@@ -359,15 +359,13 @@ export default class Artboard {
   ) => {
     const { configs, responseType } = options;
 
-    let dataUri = '';
-
     if (configs) {
       return (await Promise.all(
         configs.map(async (config: any) => {
           await this.configure(config);
 
           const cnv = await this.toCanvas();
-          dataUri = cnv.toDataURL('image/png');
+          const dataUri = cnv.toDataURL('image/png');
 
           if (responseType && responseType !== 'dataUri') {
             const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
@@ -381,7 +379,7 @@ export default class Artboard {
     }
 
     const canvas = await this.toCanvas();
-    dataUri = canvas.toDataURL('image/png');
+    const dataUri = canvas.toDataURL('image/png');
 
     if (responseType && responseType !== 'dataUri') {
       const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
@@ -438,16 +436,13 @@ export default class Artboard {
     } = {},
   ) => {
     const { configs, responseType } = options;
-
-    let dataUri = '';
-
     if (configs) {
       return (await Promise.all(
         configs.map(async (config: any) => {
           await this.configure(config);
 
           const cnv = await this.toCanvas();
-          dataUri = cnv.toDataURL('image/webp');
+          const dataUri = cnv.toDataURL('image/webp');
 
           if (responseType && responseType !== 'dataUri') {
             const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
@@ -461,7 +456,7 @@ export default class Artboard {
     }
 
     const canvas = await this.toCanvas();
-    dataUri = canvas.toDataURL('image/webp');
+    const dataUri = canvas.toDataURL('image/webp');
 
     if (responseType && responseType !== 'dataUri') {
       const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
