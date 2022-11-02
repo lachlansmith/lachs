@@ -43,7 +43,7 @@
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "buffer": "^6.0.3",
-    "lachs-pdf-lib": "^1.0.1",
+    "lachs-pdf-lib": "^1.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tslib": "^2.4.0"
@@ -57,5 +57,16 @@
     "package.json",
     "README.md",
     "yarn.lock"
+  ],
+  "keywords": [
+    "react",
+    "create",
+    "jsx",
+    "svg",
+    "png",
+    "jpeg",
+    "webp",
+    "modify",
+    "pdf"
   ]
 }

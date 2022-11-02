@@ -417,13 +417,14 @@ js-yaml@^3.13.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-lachs-pdf-lib@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/lachs-pdf-lib/-/lachs-pdf-lib-1.0.1.tgz#82015dab653d95c46983cc2da1a3dc5e95138e8f"
-  integrity sha512-kEA+8Nu8jlqraYWdqz7RAzxhJZlmLnzM7qTTPmIXr2FMHtUJ/4PkMum3oJP19Nf74DudFYExNHJpOEWf3OMFcA==
+lachs-pdf-lib@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/lachs-pdf-lib/-/lachs-pdf-lib-1.0.2.tgz#320f2b3b490e1f5c35c3c13c94c8be3211014c46"
+  integrity sha512-/+MejgMDElhLaP1jyYI7yv+jk7pdhPTuHKwX0R6baw7wW46+P7HllrXDUgWQxBAhUuLZFZKK1OvYVJhMZhPWJg==
   dependencies:
     "@pdf-lib/standard-fonts" "^1.0.0"
     "@pdf-lib/upng" "^1.0.1"
+    "@types/react" "^18.0.21"
     color "^4.2.3"
     pako "^1.0.11"
     react "16"
