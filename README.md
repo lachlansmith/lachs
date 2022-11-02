@@ -77,7 +77,7 @@ import { Element } from 'lachs';
 If you have particular methods you always use they can be added globally. Here's how you might add all basic svg shapes to lachs
 
 ```js
-import lachs from 'lachs';
+import lachs, { BoardSizes } from 'lachs';
 
 lachs.addMethod('circle', lachs.compilers.circle);
 lachs.addMethod('ellipse', lachs.compilers.ellipse);
@@ -86,7 +86,14 @@ lachs.addMethod('rect', lachs.compilers.rect);
 
 const workspace = new Workspace();
 
-const artboard = workspace.addArtboard(PageSizes.A4);
+const artboard = workspace.addArtboard(BoardSizes.A4);
+
+artboard.circle({ ... });
+artboard.ellipse({ ... });
+artboard.line({ ... });
+artboard.rect({ ... });
+
+const pdf = await artboard.toPDF()
 ```
 
 ### Configs
