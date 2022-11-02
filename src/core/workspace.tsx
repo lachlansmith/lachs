@@ -43,20 +43,6 @@ export default class Workspace {
     this.methods.push({ name, compiler });
   };
 
-  dump = (json: {
-    artboards: { size: [number, number] }[];
-    elements: {
-      method: { name: string; type: 'Shape' };
-      board: number;
-      position: number;
-      defprops: any;
-      defconfig: any;
-    }[];
-  }) => {
-    const { artboards, elements } = json;
-    console.log(artboards, elements);
-  };
-
   toJSX = () => this.artboards.map((artboard) => artboard.toJSX());
 
   to = async (

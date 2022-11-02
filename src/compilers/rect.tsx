@@ -1,19 +1,12 @@
 import React from 'react';
 
-const Rect = (props: {
-  width: number;
-  height: number;
-  fill: string;
-  stroke: string;
-  strokeWidth: string;
-}) => {
-  const { width, height } = props;
+const Rect = (props: any) => {
   return (
     <svg
-      xmlns='http://www.w3.org/2000/svg'
-      viewBox={'0 0 ' + width + ' ' + height}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={'0 0 ' + props.width + ' ' + props.height}
     >
-      <rect width={width} height={height} />
+      <rect {...props} />
     </svg>
   );
 };

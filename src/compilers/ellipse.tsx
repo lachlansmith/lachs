@@ -1,19 +1,12 @@
 import React from 'react';
 
-const Ellipse = (props: {
-  rx: number;
-  ry: number;
-  fill: string;
-  stroke: string;
-  strokeWidth: string;
-}) => {
-  const { rx, ry } = props;
+const Ellipse = (props: any) => {
   return (
     <svg
-      xmlns='http://www.w3.org/2000/svg'
-      viewBox={'0 0 ' + 2 * rx + ' ' + 2 * ry}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={'0 0 ' + 2 * props.rx + ' ' + 2 * props.ry}
     >
-      <ellipse rx={rx} ry={ry} />
+      <ellipse {...props} />
     </svg>
   );
 };

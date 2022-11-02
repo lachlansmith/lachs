@@ -35,25 +35,6 @@ export default class Artboard {
     }
   }
 
-  dump = (json: {
-    elements: {
-      method: { name: string; type: 'Shape' };
-      defprops: any;
-      defconfig: any;
-    }[];
-  }) => {
-    const { elements } = json;
-
-    for (const element of elements) {
-      const { method, defprops } = element;
-      this.add(
-        method.name,
-        this.methods.filter((m) => method.name === m.name)[0].compiler,
-        defprops,
-      );
-    }
-  };
-
   configure = async (config: any) => {
     if (!config || Object.keys(config).length === 0) {
       return this;
@@ -67,12 +48,11 @@ export default class Artboard {
   };
 
   add = (
-    name: string,
-    compiler: (props: any) => JSX.Element,
     props: any = {},
-    configurer?: (props: any, config: any) => any,
+    compiler: (props: any) => JSX.Element,
+    options: { name: string; configurer?: (props: any, config: any) => any },
   ): Element => {
-    const element = new Element(name, compiler, props, configurer);
+    const element = new Element(props, compiler, options);
 
     this.elements.push(element);
 
@@ -85,28 +65,9 @@ export default class Artboard {
     configurer?: (props: any, config: any) => any,
   ) => {
     (this as any)[name] = (props: any = {}) =>
-      this.add(name, compiler, props, configurer);
+      this.add(props, compiler, { name, configurer });
 
     this.methods.push({ name, compiler, configurer });
-  };
-
-  move = (element: Element, position: number) => {
-    if (element.board !== this.index) {
-      throw new Error(
-        "Element from another artboard can't be moved to this artboard",
-      );
-    }
-
-    if (element.position) {
-      this.elements.splice(element.position, 1);
-    }
-
-    this.elements.splice(position, 0, element);
-    for (let i = position + 1; i < this.elements.length; i++) {
-      this.elements[i].position = i;
-    }
-
-    element.position = position;
   };
 
   toJSX = () => (
