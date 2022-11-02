@@ -1,12 +1,12 @@
 {
   "name": "lachs",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Workspace for exporting JSX to PDF, SVG, PNG and JPEG",
   "repository": "https://github.com/lachlansmith/lachs.git",
   "author": "Lachlan Smith",
   "license": "MIT",
   "scripts": {
-    "release": "yarn publish --tag latest && yarn pack",
+    "release:latest": "yarn publish --tag latest && yarn pack",
     "release:prep": "yarn clean && yarn lint && yarn build",
     "lint": "yarn lint:prettier && yarn lint:tslint:src",
     "lint:tslint:src": "tslint --project tsconfig.json --fix",
