@@ -1,6 +1,6 @@
 {
   "name": "lachs",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Workspace for exporting JSX to PDF, SVG, PNG and JPEG",
   "repository": "https://github.com/lachlansmith/lachs.git",
   "author": "Lachlan Smith",
