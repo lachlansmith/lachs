@@ -3,37 +3,35 @@ import { Buffer } from 'buffer';
 import { renderToString } from 'react-dom/server';
 import { PDFDocument, PDFPage } from 'lachs-pdf-lib';
 
-import Element from 'src/core/element';
-import { format } from 'src/utils/format';
-import { drawContext } from 'src/utils/canvas';
+import { Element } from 'src/core';
+import { format, drawContext } from 'src/utils';
 
-import { methods } from 'src/core';
+import { methods } from '..';
 
 export default class Artboard {
+  meta: any;
+
   size: [number, number];
-  index: number;
+  elements: Element[];
+
   methods: {
     name: string;
     compiler: (props: any) => JSX.Element;
     configurer?: (props: any, config: any) => any;
   }[];
-  elements: Element[];
+
   document?: PDFDocument;
 
-  constructor(size: [number, number], options: { index?: number } = {}) {
-    const { index } = options;
-    this.index = index ? index : 0;
+  constructor(size: [number, number]) {
+    this.meta = {};
 
     this.size = size;
-
-    this.methods = [];
     this.elements = [];
 
-    if (methods.length > 0) {
-      methods.forEach(async ({ name, compiler, configurer }) =>
-        this.addMethod(name, compiler, configurer),
-      );
-    }
+    this.methods = [];
+    Object.entries(methods).forEach(([name, method]) =>
+      this.addMethod(name, method.compiler, method.configurer),
+    );
   }
 
   configure = async (config: any) => {
@@ -56,9 +54,9 @@ export default class Artboard {
   addElement = (
     props: any = {},
     compiler: (props: any) => JSX.Element,
-    options: { name: string; configurer?: (props: any, config: any) => any },
+    configurer?: (props: any, config: any) => any,
   ): Element => {
-    const element = new Element(compiler, props, options);
+    const element = new Element(props, compiler, configurer);
 
     this.elements.push(element);
 
@@ -71,7 +69,7 @@ export default class Artboard {
     configurer?: (props: any, config: any) => any,
   ) => {
     (this as any)[name] = (props: any = {}) =>
-      this.addElement(props, compiler, { name, configurer });
+      this.addElement(props, compiler, configurer);
 
     this.methods.push({ name, compiler, configurer });
   };
@@ -116,11 +114,10 @@ export default class Artboard {
     return canvas;
   };
 
-  from = async (pdf: ArrayBuffer, index?: number): Promise<Artboard> => {
+  from = async (pdf: ArrayBuffer): Promise<Artboard> => {
     const document = await PDFDocument.load(pdf);
-    const artboard = new Artboard(
-      document.getPage(index ? index : 0).getSize(),
-    );
+    const { width, height } = document.getPage(0).getSize();
+    const artboard = new Artboard([width, height]);
 
     artboard.document = document;
 
@@ -136,9 +133,9 @@ export default class Artboard {
     } = {},
   ) => {
     switch (type) {
-      case 'json':
-      case 'application/json':
-        return await this.toJSON(options);
+      //   case 'json':
+      //   case 'application/json':
+      //     return await this.toJSON(options);
 
       case 'pdf':
       case 'application/pdf':
@@ -165,29 +162,6 @@ export default class Artboard {
     }
   };
 
-  toJSON = (
-    options: {
-      configs?: any;
-      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
-    } = {},
-  ) => {
-    const { responseType } = options;
-
-    const json = {
-      width: this.size[0],
-      height: this.size[1],
-      elements: this.elements.map((element) => element.toJSON()),
-    };
-
-    if (responseType) {
-      const output = Buffer.from(JSON.stringify(json));
-
-      return format('application/json', output, responseType);
-    }
-
-    return json;
-  };
-
   toPDF = async (
     options: {
       configs?: any;
@@ -211,25 +185,13 @@ export default class Artboard {
 
           page.draw(graphic, { x: 0, y: h });
 
-          switch (responseType) {
-            case 'base64':
-              return await pdfDoc.saveAsBase64();
-            case 'dataUri':
-              return await pdfDoc.saveAsBase64({ dataUri: true });
-            case 'binary':
-              return Buffer.from(
-                await pdfDoc.saveAsBase64(),
-                'base64',
-              ).toString('binary');
-            case 'string':
-              return Buffer.from(
-                await pdfDoc.saveAsBase64(),
-                'base64',
-              ).toString();
-            case 'arrayBuffer':
-            default:
-              return await pdfDoc.save();
+          const buf = await doc.save();
+
+          if (responseType && responseType !== 'arrayBuffer') {
+            return format('application/pdf', Buffer.from(buf), responseType); // Buffer is faster than doc.saveAsBase64
           }
+
+          return buf;
         }),
       )) as string[] | ArrayBuffer[];
     }
@@ -272,19 +234,13 @@ export default class Artboard {
       drawables.forEach(({ graphic }) => page.draw(graphic, { x: 0, y: h }));
     }
 
-    switch (responseType) {
-      case 'base64':
-        return await doc.saveAsBase64();
-      case 'dataUri':
-        return await doc.saveAsBase64({ dataUri: true });
-      case 'binary':
-        return Buffer.from(await doc.save()).toString('binary');
-      case 'string':
-        return Buffer.from(await doc.save()).toString();
-      case 'arrayBuffer':
-      default:
-        return await doc.save();
+    const arrayBuffer = await doc.save();
+
+    if (responseType && responseType !== 'arrayBuffer') {
+      return format('application/pdf', Buffer.from(arrayBuffer), responseType); // Buffer is faster than doc.saveAsBase64
     }
+
+    return arrayBuffer;
   };
 
   toSVG = async (
@@ -341,15 +297,15 @@ export default class Artboard {
           await this.configure(config);
 
           const cnv = await this.toCanvas();
-          const dataUri = cnv.toDataURL('image/png');
+          const uri = cnv.toDataURL('image/png');
 
           if (responseType && responseType !== 'dataUri') {
-            const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
+            const output = Buffer.from(uri.split(';base64,')[1], 'base64');
 
             return format('image/png', output, responseType);
           }
 
-          return dataUri;
+          return uri;
         }),
       )) as string[] | ArrayBuffer[];
     }
@@ -388,7 +344,7 @@ export default class Artboard {
             return format('image/jpeg', output, responseType);
           }
 
-          return dataUri;
+          return uri;
         }),
       )) as string[] | ArrayBuffer[];
     }
@@ -419,15 +375,15 @@ export default class Artboard {
           await this.configure(config);
 
           const cnv = await this.toCanvas();
-          const dataUri = cnv.toDataURL('image/webp');
+          const uri = cnv.toDataURL('image/webp');
 
           if (responseType && responseType !== 'dataUri') {
-            const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
+            const output = Buffer.from(uri.split(';base64,')[1], 'base64');
 
             return format('image/png', output, responseType);
           }
 
-          return dataUri;
+          return uri;
         }),
       )) as string[] | ArrayBuffer[];
     }

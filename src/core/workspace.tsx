@@ -1,28 +1,32 @@
 import { Buffer } from 'buffer';
 import { PDFDocument, PDFPage } from 'lachs-pdf-lib';
 
-import Artboard from 'src/core/artboard';
-import Element from 'src/core/element';
-import { methods } from 'src/core';
+import { Artboard, Element } from 'src/core';
+import { format } from 'src/utils';
 
 export default class Workspace {
+  meta?: any;
+
   artboards: Artboard[];
+
   methods: {
     name: string;
     compiler: (props: any) => any;
     configurer?: (props: any, config: any) => any;
   }[];
-  private document?: PDFDocument;
+
+  document?: PDFDocument;
 
   constructor() {
+    this.meta = {};
+
     this.artboards = [];
-    this.methods = methods;
+
+    this.methods = [];
   }
 
   addArtboard = (size: [number, number]): Artboard => {
-    const artboard = new Artboard(size, {
-      index: this.artboards.length,
-    }) as any;
+    const artboard = new Artboard(size);
 
     this.methods.forEach(({ name, compiler, configurer }) => {
       artboard.addMethod(name, compiler, configurer);
@@ -52,7 +56,8 @@ export default class Workspace {
 
     workspace.document = await PDFDocument.load(pdf);
     for (const page of workspace.document.getPages()) {
-      workspace.addArtboard(page);
+      const { width, height } = page.getSize();
+      workspace.addArtboard([width, height]);
     }
 
     return workspace;
@@ -68,9 +73,9 @@ export default class Workspace {
     } = {},
   ) => {
     switch (type) {
-      case 'json':
-      case 'application/json':
-        return await this.toJSON(options);
+      //   case 'json':
+      //   case 'application/json':
+      //     return await this.toJSON(options);
 
       case 'pdf':
       case 'application/pdf':
@@ -98,15 +103,6 @@ export default class Workspace {
     }
   };
 
-  toJSON = (
-    options: {
-      configs?: any;
-      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
-    } = {},
-  ) => {
-    console.log(options);
-  };
-
   toPDF = async (
     options: {
       configs?: any;
@@ -132,44 +128,35 @@ export default class Workspace {
 
           const idx = index % this.artboards.length;
 
-          const canvas = this.document
-            ? await pdfDoc.copyPages(this.document, [idx])
+          const srcPage = this.document
+            ? ((await pdfDoc.copyPages(this.document, [idx])[0]) as PDFPage)
             : this.artboards[idx].size;
 
           this.artboards[idx].configure(config);
 
           const graphic = await pdfDoc.parseJsx(this.artboards[idx].toJSX());
 
-          const page = pdfDoc.addPage(canvas);
+          const page = pdfDoc.addPage(srcPage);
           const h = page.getHeight();
 
           page.draw(graphic, { x: 0, y: h });
 
-          switch (responseType) {
-            case 'base64':
-              return await pdfDoc.saveAsBase64();
-            case 'dataUri':
-              return await pdfDoc.saveAsBase64({ dataUri: true });
-            case 'binary':
-              return Buffer.from(
-                await pdfDoc.saveAsBase64(),
-                'base64',
-              ).toString('binary');
-            case 'string':
-              return Buffer.from(
-                await pdfDoc.saveAsBase64(),
-                'base64',
-              ).toString();
-            case 'arrayBuffer':
-            default:
-              return await pdfDoc.save();
+          const buf = await pdfDoc.save();
+
+          if (responseType && responseType !== 'arrayBuffer') {
+            return format('application/pdf', Buffer.from(buf), responseType); // Buffer is faster than doc.saveAsBase64
           }
+
+          return buf;
         }),
       )) as (string | ArrayBuffer)[];
     }
 
     const doc = await PDFDocument.create();
-    const canvas = await doc.copyPages(this.document);
+    let canvas;
+    if (this.document) {
+      canvas = await doc.copyPages(this.document);
+    }
 
     const drawables = await Promise.all(
       this.artboards.map(
@@ -234,25 +221,15 @@ export default class Workspace {
       );
     }
 
-    switch (responseType) {
-      case 'base64':
-        return array ? [await doc.saveAsBase64()] : await doc.saveAsBase64();
-      case 'dataUri':
-        return array
-          ? [await doc.saveAsBase64({ dataUri: true })]
-          : await doc.saveAsBase64({ dataUri: true });
-      case 'binary':
-        return array
-          ? [Buffer.from(await doc.saveAsBase64(), 'base64').toString('binary')]
-          : Buffer.from(await doc.saveAsBase64(), 'base64').toString('binary');
-      case 'string':
-        return array
-          ? [Buffer.from(await doc.saveAsBase64(), 'base64').toString()]
-          : Buffer.from(await doc.saveAsBase64(), 'base64').toString();
-      case 'arrayBuffer':
-      default:
-        return array ? [await doc.save()] : await doc.save();
+    const arrayBuffer = await doc.save();
+
+    if (responseType && responseType !== 'arrayBuffer') {
+      return array
+        ? [format('application/pdf', Buffer.from(arrayBuffer), responseType)]
+        : format('application/pdf', Buffer.from(arrayBuffer), responseType); // Buffer is faster than doc.saveAsBase64
     }
+
+    return array ? [arrayBuffer] : arrayBuffer;
   };
 
   toSVG = async (

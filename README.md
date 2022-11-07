@@ -7,6 +7,8 @@
 
 <br />
 
+The majority of the work that realised this package happen in one of lachs dependencies, **lachs-pdf-lib**. PDFLib is an awesome pure javascript package that allows modifying and creating PDF files. **lachs-pdf-lib** is a fork of this library that enables drawing from JSX elements. If you are interested in drawing a SVG string to a PDF visit [lachs-pdf-lib](https://www.npmjs.com/package/lachs-pdf-lib#draw-svg).
+
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
@@ -57,7 +59,7 @@
 
 ### Elements
 
-An element is constructed with properties and compiler. The compiler is a react hook function that returns an SVG JSX element. At a minimum xmlns and viewbox must be provided. An element can be exported to PDF, SVG, PNG, JPEG and WEBP.
+An element is constructed with properties and a compiler. The compiler is a react hook function that returns a JSX element. At a minimum xmlns and viewbox must be provided.
 
 ```js
 import { Element } from 'lachs';
@@ -119,7 +121,6 @@ const compiler = (props: {
   const width = viewBox[2] - viewBox[0];
 
   const { stroke } = props;
-
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -219,13 +220,13 @@ const workspace = new lachs.Workspace();
 workspace.addMethod('qrcode', qrcode);
 workspace.addMethod('text', text);
 
-const artboard = workspace.addArtboard(BoardSize.A1);
+const artboard = workspace.addArtboard(BoardSizes.A1);
 
 const qrcodeElement = artboard.qrcode({
   url: 'Welcome',
 });
 
-workspace.addArtboard(BoardSize.A5);
+workspace.addArtboard(BoardSizes.A5);
 
 const textElement = workspace.artboards[1].text({
   text: 'Welcome',
@@ -246,7 +247,7 @@ const WEBPs = await workspace.toWEBP({ responseType: 'base64' }); // base64[]
 
 ### Globals
 
-Given lachs list of available methods is empty by default this might be annoying if you use certain methods often. Here's how you might add all basic svg shapes to lachs.
+Given lachs list of available methods is empty by default this might be annoying if you use certain methods often. Here's how you might add all basic svg shapes to lachs without needing to add them to each workspace as they are constructed.
 
 ```js
 import lachs, { BoardSizes } from 'lachs';
@@ -279,9 +280,9 @@ const PDF = await workspace.toPDF()
 
 #### Configs
 
-Largely the reason this package was created was to enable easy propagation of drawings based on high level JSON configs. The _configs_ option is available on all **Element**, **Artboard** and **Workspace** `.to*` methods. For an element to _configure_ based on configs it must have a _configurer_.
+Largely the reason this package was created was to enable changing an element across multiple pages based on high level JSON configs. The _configs_ option is available on all **Element**, **Artboard** and **Workspace** `.to*` methods. For an element to _configure_ based on configs it must have a _configurer_.
 
-You can directly set the elements configurer on a per element basis.
+You can directly set the elements _configurer_ on a per element basis.
 
 ```js
 import lachs, { useConfigurer } from 'lachs';
@@ -297,10 +298,13 @@ element.configurer = useConfigurer((props: any, config: any) => ({
 }));
 
 let configs = ['table-of-contents', 'features', 'contributing', 'license'];
-const PDF = await workspace.to('application/pdf', { configs: configs }); // arrayBuffer
+const SVGs = await workspace.to('image/svg+xml', {
+  configs: configs,
+  responseType: 'dataUri',
+}); // base64[]
 ```
 
-If your element always needs the same configurer, the configurer may be added as the third argument to any addMethod. The method will now return an element with a configurer.
+If your element always needs the same configurer, it may be added as the third argument to any addMethod. The method will now always return an element with that configurer.
 
 ```js
 import lachs, { useConfigurer } from 'lachs';
@@ -328,8 +332,6 @@ const PNGs = await artboard.to('image/png', { configs: configs }); // dataUri[]
 ```
 
 #### Modify
-
-The majority of the work that realised this package happen in one of lachs dependencies, **lachs-pdf-lib**. PDFLib is an awesome pure javascript package that allows modifying and creating PDF files. **lachs-pdf-lib** is a fork of this library that enables drawing from JSX elements. If you are interested in drawing a SVG from string to a PDF visit [lachs-pdf-lib](https://www.npmjs.com/package/lachs-pdf-lib#draw-svg).
 
 If you'd like to initalise a **Workspace** from a PDF file this is done with the `.from` method. If you'd like to intialise an **Artboard** from a PDF file this is also done with the `.from` method. Use the optional argument index with **Artboard** to select which page the Artboard should be initilised from.
 
@@ -403,10 +405,12 @@ const download = async (
         | "image/svg+xml"
         | "image/png"
         | "image/jpeg"
-        | "image/webp"
+        | "image/webp",
+    options: { configs: any }
 ) => {
     const output = (await workspace.to(mimeType, {
         responseType: "dataUri",
+        ...options
     })) as string | string[];
 
     if (output instanceof Array) {

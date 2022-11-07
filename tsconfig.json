@@ -40,5 +40,5 @@
     /* Plugins */
     "plugins": [{ "transform": "@zerollup/ts-transform-paths" }]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../compilers"]
 }

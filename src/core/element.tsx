@@ -3,25 +3,17 @@ import { Buffer } from 'buffer';
 import { PDFDocument } from 'lachs-pdf-lib';
 import { renderToString } from 'react-dom/server';
 
-import { format } from 'src/utils/format';
-import { drawContext } from 'src/utils/canvas';
+import { format, drawContext } from 'src/utils';
 
 export default class Element {
-  type: string;
-  name: string;
-  position?: number;
-  board?: number;
   meta?: any;
 
-  compiler: (props: any) => JSX.Element;
   defprops: any;
-
+  compiler: (props: any) => JSX.Element;
   configurer?: (props: any, config: any) => any;
-  defconfig?: any;
 
   props: any;
   cached: boolean;
-  visible: boolean;
 
   component: any;
 
@@ -45,20 +37,18 @@ export default class Element {
     | 'bottom right';
 
   constructor(
-    compiler: (props: any) => JSX.Element,
     props: any = {},
-    options: { name: string; configurer?: (props: any, config: any) => any },
+    compiler: (props: any) => JSX.Element,
+    configurer?: (props: any, config: any) => any,
   ) {
-    this.type = 'shape';
-    this.name = options.name;
+    this.meta = {};
 
-    this.compiler = compiler;
     this.defprops = props;
-    this.configurer = options.configurer;
+    this.compiler = compiler;
+    this.configurer = configurer;
 
     this.props = props;
     this.cached = false;
-    this.visible = true;
 
     this.x = 0;
     this.y = 0;
@@ -82,20 +72,13 @@ export default class Element {
       );
     }
 
-    let x = this.x;
-    let y = this.y;
-
-    let bbox = [];
-    if (component.props.viewBox) {
-      bbox = component.props.viewBox.split(' ');
-    }
-
-    if (component.props.viewbox) {
-      bbox = component.props.viewbox.split(' ');
-    }
+    const bbox = component.props.viewBox.split(' ');
 
     this.width = (bbox[2] - bbox[0]) * this.scale;
     this.height = (bbox[3] - bbox[1]) * this.scale;
+
+    let x = this.x;
+    let y = this.y;
 
     if (this.anchor !== 'top left') {
       if (this.anchor.includes('middle')) {
@@ -124,21 +107,21 @@ export default class Element {
       transform += 'scale(' + this.scale + ')';
     }
 
-    this.component = React.cloneElement(component, {
-      ...component.props,
-      children: transform ? (
-        <g transform={transform}>{component.props.children}</g>
-      ) : (
-        component.props.children
-      ),
-    });
+    if (transform !== '') {
+      this.component = React.cloneElement(component, {
+        ...component.props,
+        children: <g transform={transform}>{component.props.children}</g>,
+      });
+    } else {
+      this.component = component;
+    }
 
     this.cached = true;
 
     return this;
   };
 
-  configure = (config: any = {}) => {
+  configure = (config?: any) => {
     if (!config || Object.keys(config).length === 0 || !this.configurer) {
       return this;
     }
@@ -233,9 +216,9 @@ export default class Element {
     } = {},
   ) => {
     switch (type) {
-      case 'json':
-      case 'application/json':
-        return await this.toJSON(options);
+      //   case 'json':
+      //   case 'application/json':
+      //     return await this.toJSON();
 
       case 'pdf':
       case 'application/pdf':
@@ -263,30 +246,6 @@ export default class Element {
     }
   };
 
-  toJSON = (
-    options: {
-      configs?: any;
-      responseType?: 'string' | 'base64' | 'binary' | 'arrayBuffer' | 'dataUri';
-    } = {},
-  ) => {
-    const { responseType } = options;
-
-    const json = {
-      method: { name: this.name, type: this.type },
-      position: this.position,
-      board: this.board,
-      meta: this.meta,
-    };
-
-    if (responseType) {
-      const output = Buffer.from(JSON.stringify(json));
-
-      return format('application/json', output, responseType);
-    }
-
-    return json;
-  };
-
   toPDF = async (
     options: {
       configs?: any;
@@ -298,7 +257,6 @@ export default class Element {
 
     const doc = await PDFDocument.create();
 
-    if (this.defconfig) this.configure(this.defconfig);
     const page = doc.addPage(this.getSize());
     const h = page.getHeight();
 
@@ -378,15 +336,15 @@ export default class Element {
           await this.configure(config);
 
           const cnv = await this.toCanvas();
-          const dataUri = cnv.toDataURL('image/png');
+          const uri = cnv.toDataURL('image/png');
 
           if (responseType && responseType !== 'dataUri') {
-            const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
+            const output = Buffer.from(uri.split(';base64,')[1], 'base64');
 
             return format('image/png', output, responseType);
           }
 
-          return dataUri;
+          return uri;
         }),
       )) as string[] | ArrayBuffer[];
     }
@@ -426,7 +384,7 @@ export default class Element {
             return format('image/jpeg', output, responseType);
           }
 
-          return dataUri;
+          return uri;
         }),
       )) as string[] | ArrayBuffer[];
     }
@@ -457,15 +415,15 @@ export default class Element {
           await this.configure(config);
 
           const cnv = await this.toCanvas();
-          const dataUri = cnv.toDataURL('image/webp');
+          const uri = cnv.toDataURL('image/webp');
 
           if (responseType && responseType !== 'dataUri') {
-            const output = Buffer.from(dataUri.split(';base64,')[1], 'base64');
+            const output = Buffer.from(uri.split(';base64,')[1], 'base64');
 
             return format('image/png', output, responseType);
           }
 
-          return dataUri;
+          return uri;
         }),
       )) as string[] | ArrayBuffer[];
     }

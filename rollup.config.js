@@ -21,8 +21,10 @@ const IgnoredWarnings = [
   'Circular dependency: node_modules/lachs-pdf-lib/es/api/PDFPage.js -> node_modules/lachs-pdf-lib/es/api/PDFDocument.js -> node_modules/lachs-pdf-lib/es/api/form/PDFForm.js -> node_modules/lachs-pdf-lib/es/api/form/PDFOptionList.js -> node_modules/lachs-pdf-lib/es/api/PDFPage.js',
   'Circular dependency: node_modules/lachs-pdf-lib/es/api/PDFPage.js -> node_modules/lachs-pdf-lib/es/api/PDFDocument.js -> node_modules/lachs-pdf-lib/es/api/form/PDFForm.js -> node_modules/lachs-pdf-lib/es/api/form/PDFRadioGroup.js -> node_modules/lachs-pdf-lib/es/api/PDFPage.js',
   'Circular dependency: node_modules/lachs-pdf-lib/es/api/PDFPage.js -> node_modules/lachs-pdf-lib/es/api/PDFDocument.js -> node_modules/lachs-pdf-lib/es/api/form/PDFForm.js -> node_modules/lachs-pdf-lib/es/api/form/PDFTextField.js -> node_modules/lachs-pdf-lib/es/api/PDFPage.js',
-  'Circular dependency: es/core/index.js -> es/core/workspace.js -> es/core/artboard.js -> es/core/index.js',
   'Circular dependency: es/core/index.js -> es/core/workspace.js -> es/core/index.js',
+  'Circular dependency: es/core/index.js -> es/core/artboard.js -> es/core/index.js',
+  'Circular dependency: es/index.js -> es/core/index.js -> es/core/artboard.js -> es/index.js',
+  'Circular dependency: es/index.js -> es/components/index.js -> es/components/Provider.js -> es/index.js',
 
   // Windows
   'Circular dependency: node_modules\\lachs-pdf-lib\\es\\api\\PDFDocument.js -> node_modules\\lachs-pdf-lib\\es\\api\\PDFFont.js -> node_modules\\lachs-pdf-lib\\es\\api\\PDFDocument.js',
@@ -39,8 +41,10 @@ const IgnoredWarnings = [
   'Circular dependency: node_modules\\lachs-pdf-lib\\es\\api\\PDFPage.js -> node_modules\\lachs-pdf-lib\\es\\api\\PDFDocument.js -> node_modules\\lachs-pdf-lib\\es\\api\\form\\PDFForm.js -> node_modules\\lachs-pdf-lib\\es\\api\\form\\PDFOptionList.js -> node_modules\\lachs-pdf-lib\\es\\api\\PDFPage.js',
   'Circular dependency: node_modules\\lachs-pdf-lib\\es\\api\\PDFPage.js -> node_modules\\lachs-pdf-lib\\es\\api\\PDFDocument.js -> node_modules\\lachs-pdf-lib\\es\\api\\form\\PDFForm.js -> node_modules\\lachs-pdf-lib\\es\\api\\form\\PDFRadioGroup.js -> node_modules\\lachs-pdf-lib\\es\\api\\PDFPage.js',
   'Circular dependency: node_modules\\lachs-pdf-lib\\es\\api\\PDFPage.js -> node_modules\\lachs-pdf-lib\\es\\api\\PDFDocument.js -> node_modules\\lachs-pdf-lib\\es\\api\\form\\PDFForm.js -> node_modules\\lachs-pdf-lib\\es\\api\\form\\PDFTextField.js -> node_modules\\lachs-pdf-lib\\es\\api\\PDFPage.js',
-  'Circular dependency: es\\core\\index.js -> es\\core\\workspace.js -> es\\core\\artboard.js -> es\\core\\index.js',
   'Circular dependency: es\\core\\index.js -> es\\core\\workspace.js -> es\\core\\index.js',
+  'Circular dependency: es\\core\\index.js -> es\\core\\artboard.js -> es\\core\\index.js',
+  'Circular dependency: es\\index.js -> es\\core\\index.js -> es\\core\\artboard.js -> es\\index.js',
+  'Circular dependency: es\\index.js -> es\\components\\index.js -> es\\components\\Provider.js -> es\\index.js',
 ];
 
 // Silence circular dependency warnings we don't care about
